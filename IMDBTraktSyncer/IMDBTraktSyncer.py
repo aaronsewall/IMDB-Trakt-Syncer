@@ -20,6 +20,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from IMDBTraktSyncer import arguments
 
+TRAKT_WATCHLIST_CACHED = False
+TRAKT_RATINGS_CACHED = False
+TRAKT_REVIEWS_CACHED = False
+TRAKT_WATCH_HISTORY_CACHED = False
+IMDB_WATCHLIST_CACHED = False
+IMDB_RATINGS_CACHED = False
+IMDB_REVIEWS_CACHED = False
+IMDB_WATCH_HISTORY_CACHED = False
+
+
 class PageLoadException(Exception):
     pass
 
@@ -262,13 +272,37 @@ def main():
             print('Processing Trakt Data')
             trakt_encoded_username = traktData.get_trakt_encoded_username()
             if sync_watchlist_value or remove_watched_from_watchlists_value:
-                trakt_watchlist = traktData.get_trakt_watchlist(trakt_encoded_username)
+                if not TRAKT_WATCHLIST_CACHED:
+                    trakt_watchlist = traktData.get_trakt_watchlist(trakt_encoded_username)
+                    with open("trakt_watchlist.json", "w") as f:
+                        json.dump(trakt_watchlist, f, indent=4)
+                else:
+                    with open("trakt_watchlist.json", "r") as f:
+                        trakt_watchlist = json.load(f)
             if sync_ratings_value or mark_rated_as_watched_value:
-                trakt_ratings = traktData.get_trakt_ratings(trakt_encoded_username)
+                if not TRAKT_RATINGS_CACHED:
+                    trakt_ratings = traktData.get_trakt_ratings(trakt_encoded_username)
+                    with open("trakt_ratings.json", "w") as f:
+                        json.dump(trakt_ratings, f, indent=4)
+                else:
+                    with open("trakt_ratings.json", "r") as f:
+                        trakt_ratings = json.load(f)
             if sync_reviews_value:
-                trakt_reviews = traktData.get_trakt_comments(trakt_encoded_username)
+                if not TRAKT_REVIEWS_CACHED:
+                    trakt_reviews = traktData.get_trakt_comments(trakt_encoded_username)
+                    with open("trakt_reviews.json", "w") as f:
+                        json.dump(trakt_reviews, f, indent=4)
+                else:
+                    with open("trakt_reviews.json", "r") as f:
+                        trakt_reviews = json.load(f)
             if sync_watch_history_value or remove_watched_from_watchlists_value or mark_rated_as_watched_value:
-                trakt_watch_history = traktData.get_trakt_watch_history(trakt_encoded_username)
+                if not TRAKT_WATCH_HISTORY_CACHED:
+                    trakt_watch_history = traktData.get_trakt_watch_history(trakt_encoded_username)
+                    with open("trakt_reviews.json", "w") as f:
+                        json.dump(trakt_reviews, f, indent=4)
+                else:
+                    with open("trakt_reviews.json", "r") as f:
+                        trakt_reviews = json.load(f)
             print('Processing Trakt Data Complete')
             
             # Get IMDB Data
@@ -276,13 +310,37 @@ def main():
             driver, wait = imdbData.generate_imdb_exports(driver, wait, directory, sync_watchlist_value, sync_ratings_value, sync_watch_history_value, remove_watched_from_watchlists_value, mark_rated_as_watched_value)
             driver, wait = imdbData.download_imdb_exports(driver, wait, directory, sync_watchlist_value, sync_ratings_value, sync_watch_history_value, remove_watched_from_watchlists_value, mark_rated_as_watched_value)
             if sync_watchlist_value or remove_watched_from_watchlists_value:
-                imdb_watchlist, driver, wait = imdbData.get_imdb_watchlist(driver, wait, directory)
+                if not IMDB_WATCHLIST_CACHED:
+                    imdb_watchlist, driver, wait = imdbData.get_imdb_watchlist(driver, wait, directory)
+                    with open("imdb_watchlist.json", "w") as f:
+                        json.dump(imdb_watchlist, f, indent=4)
+                else:
+                    with open("imdb_watchlist.json", "r") as f:
+                        imdb_watchlist = json.load(f)
             if sync_ratings_value or mark_rated_as_watched_value:
-                imdb_ratings, driver, wait = imdbData.get_imdb_ratings(driver, wait, directory)
+                if not IMDB_RATINGS_CACHED:
+                    imdb_ratings, driver, wait = imdbData.get_imdb_ratings(driver, wait, directory)
+                    with open("imdb_ratings.json", "w") as f:
+                        json.dump(imdb_ratings, f, indent=4)
+                else:
+                    with open("imdb_ratings.json", "r") as f:
+                        imdb_ratings = json.load(f)
             if sync_reviews_value:
-                imdb_reviews, errors_found_getting_imdb_reviews, driver, wait = imdbData.get_imdb_reviews(driver, wait, directory)
+                if not IMDB_REVIEWS_CACHED:
+                    imdb_reviews, errors_found_getting_imdb_reviews, driver, wait = imdbData.get_imdb_reviews(driver, wait, directory)
+                    with open("imdb_reviews.json", "w") as f:
+                        json.dump(imdb_reviews, f, indent=4)
+                else:
+                    with open("imdb_reviews.json", "r") as f:
+                        imdb_reviews = json.load(f)
             if sync_watch_history_value or remove_watched_from_watchlists_value or mark_rated_as_watched_value:
-                imdb_watch_history, driver, wait = imdbData.get_imdb_checkins(driver, wait, directory)
+                if not IMDB_WATCH_HISTORY_CACHED:
+                    imdb_watch_history, driver, wait = imdbData.get_imdb_checkins(driver, wait, directory)
+                    with open("imdb_watch_history.json", "w") as f:
+                        json.dump(imdb_watch_history, f, indent=4)
+                else:
+                    with open("imdb_watch_history.json", "r") as f:
+                        imdb_watch_history = json.load(f)
             print('Processing IMDB Data Complete')
                         
             if sync_watchlist_value:
